@@ -1,0 +1,92 @@
+@model EventPage
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Etkinlik kayıtları</title>
+    <link rel="stylesheet" href="~/site.css" />
+    <script src="~/site.js" defer></script>
+</head>
+<body>
+<main>
+    <h1>Etkinlik kayıtları</h1>
+    @if (TempData["Success"] is string message)
+    {
+        <p class="success" role="status">@message</p>
+    }
+
+    <section>
+        <h2>Etkinlikler</h2>
+        <form asp-action="Index" method="get" class="fields">
+            <label>Başlangıç <input name="from" type="date" value="@Model.FromValue" /></label>
+            <label>Bitiş <input name="to" type="date" value="@Model.ToValue" /></label>
+            <button type="submit">Filtrele</button>
+        </form>
+        @if (Model.Events.Count == 0)
+        {
+            <p>Bu sayfada etkinlik bulunamadı.</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Etkinlik</th><th>Başlangıç</th><th>Doluluk</th></tr></thead>
+                <tbody>
+                @foreach (var item in Model.Events)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.StartAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@item.RegisteredCount / @item.Capacity</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        <nav aria-label="Sayfalama">
+            @if (Model.Page > 1)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.Page - 1)"
+                   asp-route-from="@Model.FromValue" asp-route-to="@Model.ToValue">Önceki</a>
+            }
+            @if (Model.HasNext)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.Page + 1)"
+                   asp-route-from="@Model.FromValue" asp-route-to="@Model.ToValue">Sonraki</a>
+            }
+        </nav>
+    </section>
+
+    <section>
+        <h2>Katılımcı kaydet</h2>
+        <form asp-action="Register" method="post">
+            <div class="error" asp-validation-summary="All"></div>
+            <input type="hidden" name="from" value="@Model.FromValue" />
+            <input type="hidden" name="to" value="@Model.ToValue" />
+            <input type="hidden" name="page" value="@Model.Page" />
+            <div class="fields">
+                <label asp-for="Input.EventId">Etkinlik
+                    <select asp-for="Input.EventId" required>
+                        <option value="">Seçiniz</option>
+                        @foreach (var item in Model.Events)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </select>
+                </label>
+                <label asp-for="Input.ParticipantId">Katılımcı
+                    <select asp-for="Input.ParticipantId" required>
+                        <option value="">Seçiniz</option>
+                        @foreach (var participant in Model.Participants)
+                        {
+                            <option value="@participant.Id">@participant.FullName</option>
+                        }
+                    </select>
+                </label>
+                <button type="submit">Kaydet</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

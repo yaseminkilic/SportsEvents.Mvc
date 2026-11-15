@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SportsEvents.Mvc": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:5076",
+      "environmentVariables": { "ASPNETCORE_ENVIRONMENT": "Development" }
+    }
+  }
+}

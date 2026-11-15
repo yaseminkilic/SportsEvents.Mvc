@@ -1,0 +1,21 @@
+trigger:
+  - main
+pool:
+  vmImage: windows-latest
+steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: sdk
+      version: 10.0.x
+  - script: dotnet restore tests/SportsEvents.Checks.csproj
+    displayName: Restore
+  - script: dotnet build tests/SportsEvents.Checks.csproj -c Release --no-restore -warnaserror
+    displayName: Build and static compiler checks
+  - script: dotnet run --project tests/SportsEvents.Checks.csproj -c Release --no-build
+    displayName: Controller and validation checks
+  - script: dotnet publish SportsEvents.Mvc.csproj -c Release --no-restore -o "$(Build.ArtifactStagingDirectory)/web"
+    displayName: Package IIS artifact
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)/web
+      ArtifactName: web
